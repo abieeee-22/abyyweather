@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>AbyWeather • AWH | Ramalan Cuaca Profesional</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --bg-deep: #1a1e24;
+      --bg-card: #22272e;
+      --surface: #2d333b;
+      --gold: #e8b84b;
+      --gold-soft: #d4a72c;
+      --green-on: #3ecf6e;
+      --red-off: #e94f4f;
+      --text-main: #f5f0e8;
+      --text-dim: #b8b0a4;
+      --border-glass: rgba(255, 255, 255, 0.06);
+      --shadow-lg: 0 28px 60px -15px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 15% 20%, #2a2f36 0%, #1a1e24 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .weather-dashboard {
+      width: 100%;
+      max-width: 560px;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 2.8rem;
+      border: 1px solid var(--border-glass);
+      box-shadow: var(--shadow-lg);
+      padding: 1.8rem 1.8rem 2rem;
+      color: var(--text-main);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .weather-dashboard::before {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(232, 184, 75, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .header-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1.6rem;
+      border-bottom: 1px solid rgba(232, 184, 75, 0.2);
+      padding-bottom: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .brand-icon {
+      background: linear-gradient(145deg, #e8b84b, #b58a2a);
+      width: 46px;
+      height: 46px;
+      border-radius: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #1f1a0e;
+      box-shadow: 0 8px 18px rgba(232, 184, 75, 0.2);
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: -0.8px;
+      line-height: 1.1;
+    }
+
+    .brand-text small {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 1.8px;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    .official-badge {
+      background: rgba(232, 184, 75, 0.1);
+      border: 1px solid rgba(232, 184, 75, 0.45);
+      padding: 0.4rem 1.1rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.4px;
+      color: #f0dcb0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .official-badge i {
+      color: var(--gold);
+    }
+
+    .search-container {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 1.6rem;
+      background: #1a1e24;
+      border-radius: 4rem;
+      padding: 0.25rem 0.25rem 0.25rem 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .search-container i {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    .search-container input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f5f0e8;
+      font-size: 1.05rem;
+      padding: 0.8rem 0;
+      min-width: 0;
+      font-weight: 500;
+    }
+
+    .search-container input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    .search-btn {
+      background: #e8b84b;
+      border: none;
+      border-radius: 3.5rem;
+      padding: 0.8rem 1.6rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #1f1a0e;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-btn i {
+      font-size: 0.9rem;
+      color: #1f1a0e;
+    }
+
+    .search-btn:hover {
+      background: #f0cc70;
+      transform: scale(1.02);
+    }
+
+    .error-panel {
+      background: rgba(200, 70, 70, 0.15);
+      border-left: 5px solid #e94f4f;
+      color: #ffd7d7;
+      padding: 0.9rem 1.2rem;
+      border-radius: 1.2rem;
+      margin-bottom: 1.2rem;
+      font-weight: 500;
+      display: none;
+      backdrop-filter: blur(8px);
+      align-items: center;
+      gap: 0.7rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .error-panel i {
+      color: #ff8a8a;
+    }
+
+    /* Kontainer untuk loading + hasil */
+    #dynamicContent {
+      position: relative;
+      z-index: 2;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+      gap: 1.2rem;
+      min-height: 220px;
+      background: #1e2228;
+      border-radius: 2rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    .spinner-professional {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(232, 184, 75, 0.15);
+      border-top: 5px solid var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s cubic-bezier(0.6, 0.1, 0.4, 0.9) infinite;
+      box-shadow: 0 0 25px rgba(232, 184, 75, 0.2);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      color: #d8cbb0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .loading-text i {
+      color: var(--gold);
+      font-size: 1rem;
+      animation: pulse-icon 1.2s infinite;
+    }
+
+    @keyframes pulse-icon {
+      0%,100% { opacity: 0.7; }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* Placeholder awal yang halus */
+    .initial-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      padding: 2.5rem 1rem;
+      color: rgba(255, 255, 255, 0.25);
+      width: 100%;
+      background: #1e2228;
+      border-radius: 2rem;
+      border: 1px dashed rgba(255,255,255,0.08);
+      text-align: center;
+    }
+
+    .initial-placeholder i {
+      font-size: 2.8rem;
+      color: rgba(232, 184, 75, 0.4);
+    }
+
+    .initial-placeholder p {
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      font-weight: 400;
+    }
+
+    .weather-result-panel {
+      background: #1e2228;
+      border-radius: 2rem;
+      padding: 1.5rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(6px);
+      width: 100%;
+      display: none;
+    }
+
+    .location-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .location-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      color: #f5f0e8;
+    }
+
+    .timezone-chip {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 0.25rem 1.2rem;
+      border-radius: 3rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: #d8cdb8;
+    }
+
+    .icon-temp-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.4rem;
+    }
+
+    .icon-circle img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.7));
+    }
+
+    .temp-block {
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .temp-value {
+      font-size: 4rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: #f5f0e8;
+    }
+
+    .condition-text {
+      font-size: 1.3rem;
+      font-weight: 500;
+      text-transform: capitalize;
+      margin-top: 0.2rem;
+      color: #d0c4ae;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.9rem;
+      margin-top: 1.4rem;
+    }
+
+    .metric-item {
+      background: #252a31;
+      padding: 0.9rem 1rem;
+      border-radius: 1.3rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .metric-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(232, 184, 75, 0.12);
+      border-radius: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--gold);
+    }
+
+    .metric-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #aaa094;
+      margin-bottom: 0.1rem;
+    }
+
+    .metric-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.3rem;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-size: 0.75rem;
+      color: #b0a89a;
+      position: relative;
+      z-index: 2;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #22272e;
+      padding: 0.35rem 1rem;
+      border-radius: 3rem;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .status-badge i {
+      font-size: 1rem;
+    }
+
+    .status-on {
+      color: var(--green-on);
+    }
+    .status-off {
+      color: var(--red-off);
+    }
+
+    .dot-live {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-on);
+      box-shadow: 0 0 10px var(--green-on);
+      transition: 0.3s;
+    }
+
+    .watermark {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.65rem;
+      opacity: 0.4;
+      letter-spacing: 0.8px;
+      font-weight: 300;
+      pointer-events: none;
+      color: #b0a89a;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .weather-dashboard {
+        padding: 1.3rem 1.1rem;
+      }
+      .temp-value {
+        font-size: 3rem;
+      }
+      .search-container {
+        flex-direction: column;
+        background: transparent;
+        padding: 0;
+        border: none;
+        gap: 0.6rem;
+      }
+      .search-container input {
+        background: #1a1e24;
+        border-radius: 3rem;
+        padding: 0.9rem 1.4rem;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .search-btn {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-dashboard">
+    <div class="header-section">
+      <div class="brand-area">
+        <div class="brand-icon"><i class="fas fa-cloud-sun-rain"></i></div>
+        <div class="brand-text">AbyWeather <small>AWH • official</small></div>
+      </div>
+      <div class="official-badge"><i class="fas fa-shield-halved"></i> TRUSTED</div>
+    </div>
+
+    <div class="search-container">
+      <i class="fas fa-map-marker-alt"></i>
+      <input type="text" id="cityInput" placeholder="Masukan nama kota mu" autocomplete="off" />
+      <button class="search-btn" id="searchBtn"><i class="fas fa-magnifying-glass"></i> Cari</button>
+    </div>
+
+    <div class="error-panel" id="errorPanel">
+      <i class="fas fa-triangle-exclamation"></i>
+      <span id="errorMessage">Gagal memuat data.</span>
+    </div>
+
+    <div id="dynamicContent">
+      <!-- Placeholder awal yang ramah -->
+      <div class="initial-placeholder" id="initialPlaceholder">
+        <i class="fas fa-cloud-moon"></i>
+        <p>Cuaca akan muncul di sini setelah pencarian</p>
+      </div>
+
+      <div class="loading-wrapper" id="loadingWrapper" style="display: none;">
+        <div class="spinner-professional"></div>
+        <div class="loading-text"><i class="fas fa-sync-alt"></i> Mengambil data cuaca...</div>
+      </div>
+
+      <div class="weather-result-panel" id="weatherResult" style="display: none;">
+        <div class="location-row">
+          <div class="location-name" id="displayLocation">Jakarta, ID</div>
+          <div class="timezone-chip"><i class="fas fa-clock"></i> <span id="displayTimezone">GMT+7</span></div>
+        </div>
+        <div class="icon-temp-wrapper">
+          <div class="icon-circle"><img id="weatherIcon" src="https://openweathermap.org/img/wn/10n@4x.png" alt="Ikon Cuaca" /></div>
+          <div class="temp-block">
+            <div class="temp-value" id="displayTemp">27.97°C</div>
+            <div class="condition-text" id="displayCondition">hujan rintik-rintik</div>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-droplet"></i></div>
+            <div class="metric-info"><div class="metric-label">Kelembapan</div><div class="metric-value" id="displayHumidity">80%</div></div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-wind"></i></div>
+            <div class="metric-info"><div class="metric-label">Angin</div><div class="metric-value" id="displayWind">3.6 m/s</div></div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-icon"><i class="fas fa-gauge-high"></i></div>
+            <div class="metric-info"><div class="metric-label">Tekanan</div><div class="metric-value" id="displayPressure">1014 hPa</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="server-status" id="serverStatusBox">
+        <div class="status-badge">
+          <i class="fas fa-server" id="serverIcon"></i>
+          <span id="statusText">Server: memeriksa...</span>
+          <div class="dot-live" id="statusDot"></div>
+        </div>
+      </div>
+      <div class="copyright"><i class="fas fa-copyright"></i> AWH 2025</div>
+    </div>
+
+    <div class="watermark"><i class="fas fa-lock"></i> secure endpoint • theresav.biz.id</div>
+  </div>
+
+  <script>
+    (function() {
+      const API_ENDPOINT = "https://api.theresav.biz.id/info/weather";
+      const API_KEY = "hBvyU";
+
+      const cityInput = document.getElementById('cityInput');
+      const searchBtn = document.getElementById('searchBtn');
+      const initialPlaceholder = document.getElementById('initialPlaceholder');
+      const loadingWrapper = document.getElementById('loadingWrapper');
+      const weatherResult = document.getElementById('weatherResult');
+      const errorPanel = document.getElementById('errorPanel');
+      const errorMessage = document.getElementById('errorMessage');
+      const displayLocation = document.getElementById('displayLocation');
+      const displayTimezone = document.getElementById('displayTimezone');
+      const weatherIcon = document.getElementById('weatherIcon');
+      const displayTemp = document.getElementById('displayTemp');
+      const displayCondition = document.getElementById('displayCondition');
+      const displayHumidity = document.getElementById('displayHumidity');
+      const displayWind = document.getElementById('displayWind');
+      const displayPressure = document.getElementById('displayPressure');
+      const serverIcon = document.getElementById('serverIcon');
+      const statusText = document.getElementById('statusText');
+      const statusDot = document.getElementById('statusDot');
+
+      function setServerStatus(isOnline, msg = '') {
+        if (isOnline) {
+          serverIcon.className = 'fas fa-server status-on';
+          statusText.innerText = msg || 'Server: online';
+          statusDot.style.background = '#3ecf6e';
+          statusDot.style.boxShadow = '0 0 12px #3ecf6e';
+        } else {
+          serverIcon.className = 'fas fa-server status-off';
+          statusText.innerText = msg || 'Server: offline';
+          statusDot.style.background = '#e94f4f';
+          statusDot.style.boxShadow = '0 0 12px #e94f4f';
+        }
+      }
+
+      function showInitialPlaceholder() {
+        initialPlaceholder.style.display = 'flex';
+        loadingWrapper.style.display = 'none';
+        weatherResult.style.display = 'none';
+        errorPanel.style.display = 'none';
+      }
+
+      function showLoading() {
+        initialPlaceholder.style.display = 'none';
+        loadingWrapper.style.display = 'flex';
+        weatherResult.style.display = 'none';
+        errorPanel.style.display = 'none';
+      }
+
+      function showResult() {
+        initialPlaceholder.style.display = 'none';
+        loadingWrapper.style.display = 'none';
+        weatherResult.style.display = 'block';
+        errorPanel.style.display = 'none';
+      }
+
+      function showError(msg) {
+        initialPlaceholder.style.display = 'none';
+        loadingWrapper.style.display = 'none';
+        weatherResult.style.display = 'none';
+        errorPanel.style.display = 'flex';
+        errorMessage.innerText = msg;
+        setServerStatus(false, 'Server: offline (gagal)');
+      }
+
+      async function fetchWeather(city) {
+        const trimmedCity = city.trim();
+        if (!trimmedCity) {
+          showError('Masukkan nama kota terlebih dahulu.');
+          return;
+        }
+
+        showLoading();
+        setServerStatus(true, 'Server: online • memuat...');
+
+        const finalUrl = `${API_ENDPOINT}?text=${encodeURIComponent(trimmedCity + ' ')}&apikey=${API_KEY}`;
+        
+        try {
+          const response = await fetch(finalUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          if (!data.status || !data.result) throw new Error('Response tidak valid');
+
+          const r = data.result;
+          displayLocation.innerText = r.lokasi || 'Tidak diketahui';
+          displayTimezone.innerText = r.zona_waktu || 'GMT+7';
+          weatherIcon.src = r.icon || 'https://openweathermap.org/img/wn/10n@4x.png';
+          displayTemp.innerText = r.suhu || '--°C';
+          displayCondition.innerText = r.cuaca || 'kondisi tidak tersedia';
+          displayHumidity.innerText = r.kelembapan || '--';
+          displayWind.innerText = r.angin || '--';
+          displayPressure.innerText = r.tekanan_udara || '--';
+
+          showResult();
+          setServerStatus(true, `Server: online • ${data.creator || 'Blckrosé'}`);
+        } catch (err) {
+          console.error(err);
+          showError(`Gagal memuat: ${err.message}. Cek koneksi/API.`);
+        }
+      }
+
+      searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fetchWeather(cityInput.value);
+      });
+
+      cityInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          fetchWeather(cityInput.value);
+        }
+      });
+
+      window.addEventListener('load', () => {
+        // Biarkan input kosong & tampilkan placeholder
+        showInitialPlaceholder();
+        cityInput.value = '';
+
+        // Cek status server awal
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        fetch(`${API_ENDPOINT}?text=Jakarta+&apikey=${API_KEY}`, { signal: controller.signal })
+          .then(res => {
+            clearTimeout(timeoutId);
+            if (res.ok) return res.json();
+            throw new Error('offline');
+          })
+          .then(data => {
+            setServerStatus(data.status === true, data.status ? 'Server: online' : 'Server: offline');
+          })
+          .catch(() => setServerStatus(false, 'Server: offline'));
+      });
+    })();
+  </script>
+</body>
+</html>
